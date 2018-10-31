@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="title_text_size">22sp</dimen>
+    <dimen name="title_margin_top">10dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="dp_0">0dp</dimen>
+    <dimen name="dp_4">4dp</dimen>
+    <dimen name="dp_8">8dp</dimen>
+    <dimen name="dp_10">10dp</dimen>
+    <dimen name="sp_15">15sp</dimen>
+    <dimen name="sp_13">13sp</dimen>
+    <dimen name="dp_16">16dp</dimen>
+    <dimen name="dp_90">90dp</dimen>
+    <dimen name="sum_1">1</dimen>
+</resources>

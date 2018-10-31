@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Lazy View</string>
+    <string name="networkmessage">No Internet Connectivity! </string>
+    <string name="progress_message">Please wait for a while... </string>
+    <string name="progress_message_title">Loading </string>
+    <string name="NA">NA</string>
+    <string name="OK">OK</string>
+    <string name="failure_invalid_response">"Invalid Response.. Please try after sometime!"</string>
+</resources>
