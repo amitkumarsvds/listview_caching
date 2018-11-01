@@ -9,7 +9,7 @@ import retrofit2.http.GET;
 /**
  * Interface for REST API
  */
-public interface ExerciseService {
+public interface Api {
 
     @GET("/s/2iodh4vg0eortkl/facts.json")
     Call<Proficiency> getFactsFromApi();

@@ -1,18 +1,24 @@
 package com.android.lazyloading.recyclerview.lazyload;
 
 import android.app.ProgressDialog;
-import android.content.Context;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
-import android.view.View;
-import android.widget.ProgressBar;
 
 import com.android.lazyloading.recyclerview.R;
 import com.android.lazyloading.recyclerview.alert.LazyLoadAlertDialog;
+import com.android.lazyloading.recyclerview.models.Proficiency;
+import com.android.lazyloading.recyclerview.retrofit.Api;
 import com.android.lazyloading.recyclerview.services.networkmanager.ConnectionListener;
 import com.android.lazyloading.recyclerview.services.networkmanager.LazyLoadApplication;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 
 /**
@@ -21,33 +27,55 @@ import com.android.lazyloading.recyclerview.services.networkmanager.LazyLoadAppl
 public class LazyLoadActivity extends AppCompatActivity implements LazyLoadView, ConnectionListener {
 
     protected RecyclerView mRecyclerView;
-    private ProgressBar mProgressBar;
-    private Context mContext;
     private ProgressDialog mProgressDialog;
-    private LazyLoadPresenter presenter;
+    private LazyLoadPresenter mPresenter;
     private SwipeRefreshLayout swipeLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_list);
-
-        mContext = this;
-
+        if (savedInstanceState == null) {
+            showProgressDialog();
+        }
+        ((LazyLoadApplication) getApplication()).setInternetConnectionListener(this);
+        mPresenter = new LazyLoadPresenter(LazyLoadActivity.this, (LazyLoadApplication) getApplication());
+        mRecyclerView = findViewById(R.id.recycler_view);
+        swipeLayout = findViewById(R.id.swipe_refresh);
         setUiElements();
 
-        ((LazyLoadApplication) getApplication()).setInternetConnectionListener(this);
 
-        presenter = new LazyLoadPresenter(this, new LazyLoadViewServiceCommunicator(),(LazyLoadApplication) getApplication());
+        //ViewModel responsibility is to manage the data for the UI.
 
-        showProgressDialog();
-
+        final LazyLoadViewModel model = ViewModelProviders.of(this).get(LazyLoadViewModel.class);
+        model.getProficienyData().observe(this, new Observer<Proficiency>() {
+            @Override
+            public void onChanged(@Nullable Proficiency proficiency) {
+                if (proficiency != null) {
+                    // update ui.
+                    mPresenter.updateUI(proficiency);
+                }
+                dismissProgressDialog();
+            }
+        });
         // Adding  Swipe view Listener
         swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                //delegating API call to presenter to get the list item from the server
-                presenter.refresh();
+                Api api = ((LazyLoadApplication) getApplication()).getApiService();
+                Call<Proficiency> call = api.getFactsFromApi();
+                call.enqueue(new Callback<Proficiency>() {
+                    @Override
+                    public void onResponse(Call<Proficiency> call, Response<Proficiency> response) {
+                        mPresenter.updateUI(response.body());
+                    }
+
+                    @Override
+                    public void onFailure(Call<Proficiency> call, Throwable t) {
+
+                    }
+                });
+                hideSwipeRefresh();
             }
         });
 
@@ -58,9 +86,6 @@ public class LazyLoadActivity extends AppCompatActivity implements LazyLoadView,
      */
     @Override
     public void setUiElements() {
-        mRecyclerView = findViewById(R.id.recycler_view);
-        mProgressBar = findViewById(R.id.progress_bar);
-        swipeLayout = findViewById(R.id.swipe_refresh);
         // Scheme colors for animation
         swipeLayout.setColorSchemeColors(
                 getResources().getColor(android.R.color.holo_blue_bright),
@@ -92,26 +117,6 @@ public class LazyLoadActivity extends AppCompatActivity implements LazyLoadView,
     }
 
     /**
-     * show progress bar
-     */
-    @Override
-    public void showProgressBar() {
-
-        if (mProgressBar != null)
-            mProgressBar.setVisibility(View.VISIBLE);
-    }
-
-    /**
-     * hide progress bar
-     */
-    @Override
-    public void hideProgressBar() {
-
-        if (mProgressBar != null)
-            mProgressBar.setVisibility(View.GONE);
-    }
-
-    /**
      * hide swipe refresh view
      */
     @Override
@@ -124,7 +129,6 @@ public class LazyLoadActivity extends AppCompatActivity implements LazyLoadView,
      */
     @Override
     protected void onDestroy() {
-        presenter.onDestroy();
         super.onDestroy();
 
     }
@@ -145,26 +149,19 @@ public class LazyLoadActivity extends AppCompatActivity implements LazyLoadView,
 
     @Override
     public void onInternetUnavailable() {
+
         hideSwipeRefresh();
 
         dismissProgressDialog();
-
-    }
-
-    @Override
-    public void onCacheUnavailable() {
-
-        // blank on first time offline else cached of previous-online-data
-        hideSwipeRefresh();
-
-        dismissProgressDialog();
-
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 LazyLoadAlertDialog.alertDilaog(LazyLoadActivity.this,
-                        mContext.getResources().getString(R.string.networkmessage));
+                        getString(R.string.networkmessage));
             }
         });
+
+
     }
+
 }

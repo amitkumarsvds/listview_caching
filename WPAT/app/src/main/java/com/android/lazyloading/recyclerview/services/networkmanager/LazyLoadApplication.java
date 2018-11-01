@@ -5,13 +5,11 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
-import com.android.lazyloading.recyclerview.retrofit.ExerciseService;
+import com.android.lazyloading.recyclerview.retrofit.Api;
 import com.google.gson.Gson;
 
-import java.io.File;
 import java.util.concurrent.TimeUnit;
 
-import okhttp3.Cache;
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -21,7 +19,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 public class LazyLoadApplication extends Application {
 
-    private ExerciseService mApiService;
+    private Api mApiService;
     private ConnectionListener mConnectionListener;
 
     @Override
@@ -50,9 +48,9 @@ public class LazyLoadApplication extends Application {
      *
      * @return mApiService
      */
-    public ExerciseService getmApiService() {
+    public Api getApiService() {
         if (mApiService == null) {
-            mApiService = provideRetrofit(Utils.BASE_URL).create(ExerciseService.class);
+            mApiService = provideRetrofit(Utils.BASE_URL).create(Api.class);
         }
         return mApiService;
     }
@@ -82,16 +80,6 @@ public class LazyLoadApplication extends Application {
                 .build();
     }
 
-    /**
-     * method to store data in cache
-     *
-     * @return cache
-     */
-    private Cache getCache() {
-        File cacheDir = new File(getCacheDir(), "cache");
-        Cache cache = new Cache(cacheDir, Utils.DISK_CACHE_SIZE);
-        return cache;
-    }
 
     /**
      * okhttp setup with timeout and intercepter for cache
@@ -101,7 +89,6 @@ public class LazyLoadApplication extends Application {
     private OkHttpClient provideOkHttpClient() {
         OkHttpClient.Builder okhttpClientBuilder = new OkHttpClient.Builder();
         okhttpClientBuilder.connectTimeout(30, TimeUnit.SECONDS);
-        okhttpClientBuilder.cache(getCache());
         okhttpClientBuilder.readTimeout(30, TimeUnit.SECONDS);
         okhttpClientBuilder.writeTimeout(30, TimeUnit.SECONDS);
 
@@ -120,9 +107,7 @@ public class LazyLoadApplication extends Application {
 
             @Override
             public void onCacheUnavailable() {
-                if (mConnectionListener != null) {
-                    mConnectionListener.onCacheUnavailable();
-                }
+
             }
         });
 

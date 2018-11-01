@@ -23,7 +23,7 @@ public abstract class NetworkConnectionInterceptor implements Interceptor {
         if (!isInternetAvailable()) {
             onInternetUnavailable();
             request = request.newBuilder().header("Cache-Control",
-                    "public, only-if-cached, max-stale=" + 10).build();//max-scale value can be customize depends on requirment
+                    "public, only-if-cached, max-stale=" + 40).build();//max-scale value can be customize depends on requirment
             Response response = chain.proceed(request);
             if (response.cacheResponse() == null) {
                 onCacheUnavailable();

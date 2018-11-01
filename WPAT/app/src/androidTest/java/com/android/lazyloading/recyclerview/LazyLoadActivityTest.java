@@ -1,18 +1,18 @@
 package com.android.lazyloading.recyclerview;
 
-import android.app.ProgressDialog;
 import android.support.test.espresso.Espresso;
 import android.support.test.espresso.action.ViewActions;
 import android.support.test.espresso.matcher.ViewMatchers;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.RecyclerView;
 import android.test.ActivityInstrumentationTestCase2;
-import android.util.Log;
-import android.widget.ProgressBar;
+
 import com.android.lazyloading.recyclerview.lazyload.LazyLoadActivity;
 import com.android.lazyloading.recyclerview.models.Proficiency;
 import com.android.lazyloading.recyclerview.services.networkmanager.LazyLoadApplication;
+
 import org.junit.Test;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -21,7 +21,6 @@ public class LazyLoadActivityTest extends ActivityInstrumentationTestCase2<LazyL
     private LazyLoadActivity mTestActivity;
     private LazyLoadApplication mLazyLoadApplication;
     private SwipeRefreshLayout mSwipeRefreshLayout;
-    private ProgressBar mProgressBar;
     private RecyclerView mRecyclerView;
 
     public LazyLoadActivityTest() {
@@ -34,23 +33,10 @@ public class LazyLoadActivityTest extends ActivityInstrumentationTestCase2<LazyL
         mLazyLoadApplication = (LazyLoadApplication) mTestActivity.getApplicationContext();
         mSwipeRefreshLayout = mTestActivity.findViewById(R.id.swipe_refresh);
         mRecyclerView = mTestActivity.findViewById(R.id.recycler_view);
-        mProgressBar =  mTestActivity.findViewById(R.id.progress_bar);
     }
     @Test
     public void test_Activity_Is_Null_checking() {
         assertNotNull("mTestActivity is null", mTestActivity);
-    }
-    @Test
-    public void test_ProgressBar_Is_Null_Checking() {
-        assertNotNull("mProgressBar is null", mProgressBar);
-    }
-    @Test
-    public void test_ProgressBar_visibility_Checking() {
-       assertFalse(mProgressBar.isShown());
-    }
-    @Test
-    public void test_ProgressBar_Not_visible_Checking() {
-        assertTrue(!mProgressBar.isShown());
     }
     @Test
     public void test_SwipeRefreshLayout_Is_Null_checking() {
@@ -73,7 +59,7 @@ public class LazyLoadActivityTest extends ActivityInstrumentationTestCase2<LazyL
     }
     @Test
     public void testResponseData() {
-        mLazyLoadApplication.getmApiService().getFactsFromApi()
+        mLazyLoadApplication.getApiService().getFactsFromApi()
                 .enqueue(new Callback<Proficiency>() {
                     @Override
                     public void onResponse(Call<Proficiency> call, Response<Proficiency> response) {

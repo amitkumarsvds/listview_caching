@@ -11,9 +11,5 @@ public interface LazyLoadView {
 
     void dismissProgressDialog();
 
-    void showProgressBar();
-
-    void hideProgressBar();
-
     void hideSwipeRefresh();
 }
