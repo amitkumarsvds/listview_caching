@@ -38,15 +38,11 @@ public class LazyLoadActivity extends AppCompatActivity implements LazyLoadView,
         if (savedInstanceState == null) {
             showProgressDialog();
         }
-        ((LazyLoadApplication) getApplication()).setInternetConnectionListener(this);
         mPresenter = new LazyLoadPresenter(LazyLoadActivity.this, (LazyLoadApplication) getApplication());
         mRecyclerView = findViewById(R.id.recycler_view);
         swipeLayout = findViewById(R.id.swipe_refresh);
         setUiElements();
-
-
         //ViewModel responsibility is to manage the data for the UI.
-
         final LazyLoadViewModel model = ViewModelProviders.of(this).get(LazyLoadViewModel.class);
         model.getProficienyData().observe(this, new Observer<Proficiency>() {
             @Override
