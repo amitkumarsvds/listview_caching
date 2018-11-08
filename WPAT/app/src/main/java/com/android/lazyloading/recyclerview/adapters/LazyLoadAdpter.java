@@ -26,8 +26,6 @@ import java.util.List;
  * Adapter class for list item
  */
 public class LazyLoadAdpter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-    private OnLoadMoreListener loadMoreListener;
-    private boolean isLoading = false, isMoreDataAvailable = true;
     private Context mContext;
     private List<Row> mListRows;
 
@@ -44,14 +42,7 @@ public class LazyLoadAdpter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-
         ((ExerciseHolder) holder).bindData(mListRows, position);
-
-        if (position >= getItemCount() - 1 && isMoreDataAvailable && !isLoading && loadMoreListener != null) {
-            isLoading = true;
-            loadMoreListener.onLoadMore();
-        }
-
     }
 
     @Override
@@ -65,40 +56,6 @@ public class LazyLoadAdpter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         return mListRows.size();
     }
 
-    /* VIEW HOLDERS class for caching*/
-
-    /**
-     * used to check if more data available
-     *
-     * @param moreDataAvailable
-     */
-    public void setMoreDataAvailable(boolean moreDataAvailable) {
-        isMoreDataAvailable = moreDataAvailable;
-    }
-
-    /* notifyDataSetChanged is final method so we can't override it
-         call adapter.notifyDataChanged(); after update the list
-         */
-    public final void notifyDataChanged() {
-        notifyDataSetChanged();
-        isLoading = false;
-    }
-
-    /**
-     * set load more  from activity
-     *
-     * @param loadMoreListener loadMoreListener
-     */
-    public void setLoadMoreListener(OnLoadMoreListener loadMoreListener) {
-        this.loadMoreListener = loadMoreListener;
-    }
-
-    /**
-     * interface for load more pagination
-     */
-    public interface OnLoadMoreListener {
-        void onLoadMore();
-    }
 
     private class ExerciseHolder extends RecyclerView.ViewHolder {
         TextView mTxtTitle;
@@ -107,9 +64,9 @@ public class LazyLoadAdpter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
         public ExerciseHolder(View itemView) {
             super(itemView);
-            mTxtTitle = (TextView) itemView.findViewById(R.id.txtTitle);
-            mtxtdescription = (TextView) itemView.findViewById(R.id.txtDescription);
-            mImgView = (ImageView) itemView.findViewById(R.id.image_view);
+            mTxtTitle = itemView.findViewById(R.id.txtTitle);
+            mtxtdescription = itemView.findViewById(R.id.txtDescription);
+            mImgView = itemView.findViewById(R.id.image_view);
 
         }
 

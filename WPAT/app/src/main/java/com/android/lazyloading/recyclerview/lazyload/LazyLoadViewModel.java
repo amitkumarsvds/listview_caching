@@ -5,6 +5,7 @@ import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.android.lazyloading.recyclerview.R;
@@ -16,6 +17,9 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+/**
+ * class for viewmodel
+ */
 public class LazyLoadViewModel extends AndroidViewModel {
     private MutableLiveData<Proficiency> mProficienyList;
     private LazyLoadApplication mLazyLoadApplication;
@@ -47,6 +51,7 @@ public class LazyLoadViewModel extends AndroidViewModel {
         call.enqueue(new Callback<Proficiency>() {
             @Override
             public void onResponse(Call<Proficiency> call, Response<Proficiency> response) {
+                Log.d("JSONNNN","Service");
                 mProficienyList.setValue(response.body());
             }
 
@@ -55,5 +60,13 @@ public class LazyLoadViewModel extends AndroidViewModel {
                 Toast.makeText(mLazyLoadApplication.getApplicationContext(), mLazyLoadApplication.getApplicationContext().getString(R.string.failure_invalid_response), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    /**
+     * get the latest data when user click on refresh button/swipe view
+     */
+    public void getLatestFeed()
+    {
+        loadDatas();
     }
 }

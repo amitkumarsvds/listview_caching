@@ -12,13 +12,8 @@ import android.support.v7.widget.RecyclerView;
 import com.android.lazyloading.recyclerview.R;
 import com.android.lazyloading.recyclerview.alert.LazyLoadAlertDialog;
 import com.android.lazyloading.recyclerview.models.Proficiency;
-import com.android.lazyloading.recyclerview.retrofit.Api;
 import com.android.lazyloading.recyclerview.services.networkmanager.ConnectionListener;
 import com.android.lazyloading.recyclerview.services.networkmanager.LazyLoadApplication;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 
 /**
@@ -30,6 +25,7 @@ public class LazyLoadActivity extends AppCompatActivity implements LazyLoadView,
     private ProgressDialog mProgressDialog;
     private LazyLoadPresenter mPresenter;
     private SwipeRefreshLayout swipeLayout;
+    private LazyLoadViewModel mModelLazyLoad;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,12 +35,10 @@ public class LazyLoadActivity extends AppCompatActivity implements LazyLoadView,
             showProgressDialog();
         }
         mPresenter = new LazyLoadPresenter(LazyLoadActivity.this, (LazyLoadApplication) getApplication());
-        mRecyclerView = findViewById(R.id.recycler_view);
-        swipeLayout = findViewById(R.id.swipe_refresh);
         setUiElements();
         //ViewModel responsibility is to manage the data for the UI.
-        final LazyLoadViewModel model = ViewModelProviders.of(this).get(LazyLoadViewModel.class);
-        model.getProficienyData().observe(this, new Observer<Proficiency>() {
+        mModelLazyLoad = ViewModelProviders.of(this).get(LazyLoadViewModel.class);
+        mModelLazyLoad.getProficienyData().observe(this, new Observer<Proficiency>() {
             @Override
             public void onChanged(@Nullable Proficiency proficiency) {
                 if (proficiency != null) {
@@ -58,19 +52,7 @@ public class LazyLoadActivity extends AppCompatActivity implements LazyLoadView,
         swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                Api api = ((LazyLoadApplication) getApplication()).getApiService();
-                Call<Proficiency> call = api.getFactsFromApi();
-                call.enqueue(new Callback<Proficiency>() {
-                    @Override
-                    public void onResponse(Call<Proficiency> call, Response<Proficiency> response) {
-                        mPresenter.updateUI(response.body());
-                    }
-
-                    @Override
-                    public void onFailure(Call<Proficiency> call, Throwable t) {
-
-                    }
-                });
+                mModelLazyLoad.getLatestFeed();
                 hideSwipeRefresh();
             }
         });
@@ -82,6 +64,8 @@ public class LazyLoadActivity extends AppCompatActivity implements LazyLoadView,
      */
     @Override
     public void setUiElements() {
+        mRecyclerView = findViewById(R.id.recycler_view);
+        swipeLayout = findViewById(R.id.swipe_refresh);
         // Scheme colors for animation
         swipeLayout.setColorSchemeColors(
                 getResources().getColor(android.R.color.holo_blue_bright),
